@@ -1,32 +1,31 @@
 {
   "name": "documentcrunch-event-hub",
   "version": "1.0.0",
-  "description": "DocumentCrunch Event Hub - Maddie's team event tracking platform",
+  "description": "DocumentCrunch Event Hub Backend",
+  "main": "server.js",
   "scripts": {
-    "install:all": "npm run install:backend && npm run install:frontend",
-    "install:backend": "cd backend && npm install",
-    "install:frontend": "cd frontend && npm install",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
-    "dev:backend": "cd backend && npm run dev",
-    "dev:frontend": "cd frontend && npm start",
-    "build": "cd frontend && npm run build",
-    "start": "cd backend && npm start"
+    "start": "node server.js",
+    "build": "npm install"
   },
-  "devDependencies": {
-    "concurrently": "^8.2.0"
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cheerio": "^1.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.10.0",
+    "express-validator": "^7.2.1",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "node-cron": "^3.0.3",
+    "puppeteer": "^21.11.0",
+    "socket.io": "^4.7.5",
+    "sqlite3": "^5.1.6",
+    "uuid": "^9.0.1",
+    "ws": "^8.18.0",
+    "xlsx": "^0.18.5"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/documentcrunch/event-hub.git"
-  },
-  "keywords": [
-    "documentcrunch",
-    "events",
-    "tracking",
-    "react",
-    "nodejs",
-    "maddie-team"
-  ],
-  "author": "DocumentCrunch - Maddie's Team",
-  "license": "MIT"
+  "engines": {
+    "node": "18.x"
+  }
 }

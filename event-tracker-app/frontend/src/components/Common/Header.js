@@ -34,6 +34,13 @@ const Header = () => {
             <i className="fas fa-calendar-star"></i>
             Find Events
           </Link>
+          <Link 
+            to="/tracking" 
+            className={`nav-link ${isActive('/tracking') ? 'active' : ''}`}
+          >
+            <i className="fas fa-radar"></i>
+            URL Tracking
+          </Link>
           
           {user ? (
             <div className="user-menu">

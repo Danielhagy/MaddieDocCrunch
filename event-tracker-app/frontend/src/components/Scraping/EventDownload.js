@@ -56,6 +56,26 @@ const EventDownload = ({ url, selectedEvents, onDownloadComplete }) => {
     }
   };
 
+  const getUpcomingEventsCount = () => {
+    const now = new Date();
+    return selectedEvents.filter(event => {
+      if (event.dateSort && event.dateSort > now.getTime()) {
+        return true;
+      }
+      return false;
+    }).length;
+  };
+
+  const getEventsByConfidence = () => {
+    const counts = { High: 0, Medium: 0, Low: 0 };
+    selectedEvents.forEach(event => {
+      if (counts.hasOwnProperty(event.confidence)) {
+        counts[event.confidence]++;
+      }
+    });
+    return counts;
+  };
+
   return (
     <motion.div 
       className="download-events"
@@ -89,10 +109,50 @@ const EventDownload = ({ url, selectedEvents, onDownloadComplete }) => {
         </div>
         
         {selectedEvents.length > 0 && (
-          <p style={{ color: '#a1a1aa', fontSize: '0.875rem', marginTop: '1rem' }}>
-            <i className="fas fa-info-circle" style={{ marginRight: '0.5rem', color: '#6366f1' }}></i>
-            Your Excel file will include: Event Name, Date, Time, Description, Location, and Website URL
-          </p>
+          <>
+            <div className="download-breakdown">
+              <h4 style={{ color: '#ffffff', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                Selection Breakdown:
+              </h4>
+              <div className="breakdown-grid">
+                {(() => {
+                  const upcomingCount = getUpcomingEventsCount();
+                  const confidenceCounts = getEventsByConfidence();
+                  
+                  return (
+                    <>
+                      {upcomingCount > 0 && (
+                        <div className="breakdown-item">
+                          <span className="breakdown-number" style={{ color: '#10b981' }}>
+                            {upcomingCount}
+                          </span>
+                          <span className="breakdown-label">Upcoming</span>
+                        </div>
+                      )}
+                      {Object.entries(confidenceCounts).map(([confidence, count]) => 
+                        count > 0 ? (
+                          <div key={confidence} className="breakdown-item">
+                            <span className="breakdown-number" style={{ 
+                              color: confidence === 'High' ? '#10b981' : 
+                                    confidence === 'Medium' ? '#f59e0b' : '#6b7280'
+                            }}>
+                              {count}
+                            </span>
+                            <span className="breakdown-label">{confidence}</span>
+                          </div>
+                        ) : null
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+            
+            <p style={{ color: '#a1a1aa', fontSize: '0.875rem', marginTop: '1rem' }}>
+              <i className="fas fa-info-circle" style={{ marginRight: '0.5rem', color: '#6366f1' }}></i>
+              Your Excel file will include: Event Name, Date, Description, Source, and Confidence Level
+            </p>
+          </>
         )}
       </div>
 

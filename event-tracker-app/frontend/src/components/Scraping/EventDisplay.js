@@ -3,6 +3,87 @@ import { motion } from 'framer-motion';
 
 const EventDisplay = ({ events, onSelectionChange, selectedEvents }) => {
   const [selectAll, setSelectAll] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [sortedEvents, setSortedEvents] = useState(events);
+
+  // Update sorted events when events prop changes
+  React.useEffect(() => {
+    setSortedEvents(events);
+  }, [events]);
+
+  // Sort events based on current sort configuration
+  React.useEffect(() => {
+    if (sortConfig.key) {
+      const sorted = [...events].sort((a, b) => {
+        let aValue = a[sortConfig.key] || '';
+        let bValue = b[sortConfig.key] || '';
+
+        // Handle date sorting specially
+        if (sortConfig.key === 'date') {
+          const aDate = parseDate(aValue);
+          const bDate = parseDate(bValue);
+          
+          if (sortConfig.direction === 'asc') {
+            return aDate - bDate;
+          } else {
+            return bDate - aDate;
+          }
+        }
+
+        // Handle string sorting
+        if (typeof aValue === 'string' && typeof bValue === 'string') {
+          aValue = aValue.toLowerCase();
+          bValue = bValue.toLowerCase();
+        }
+
+        if (sortConfig.direction === 'asc') {
+          return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        } else {
+          return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        }
+      });
+      setSortedEvents(sorted);
+    } else {
+      setSortedEvents(events);
+    }
+  }, [events, sortConfig]);
+
+  const parseDate = (dateString) => {
+    if (!dateString) return new Date(0);
+    
+    // Try to parse various date formats
+    const date = new Date(dateString);
+    if (!isNaN(date.getTime())) {
+      return date;
+    }
+    
+    // Fallback to current date if parsing fails
+    return new Date();
+  };
+
+  const handleSort = (key) => {
+    let direction = 'asc';
+    
+    // If clicking the same column, toggle direction
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    }
+    
+    console.log(`Sorting by ${key} in ${direction} order`);
+    setSortConfig({ key, direction });
+  };
+
+  const getSortIcon = (columnKey) => {
+    if (sortConfig.key !== columnKey) {
+      return <i className="fas fa-sort" style={{ opacity: 0.3, marginLeft: '0.5rem' }}></i>;
+    }
+    
+    if (sortConfig.direction === 'asc') {
+      return <i className="fas fa-sort-up" style={{ color: '#6366f1', marginLeft: '0.5rem' }}></i>;
+    } else {
+      return <i className="fas fa-sort-down" style={{ color: '#6366f1', marginLeft: '0.5rem' }}></i>;
+    }
+  };
 
   const handleEventToggle = (event) => {
     const isSelected = selectedEvents.find(e => e.id === event.id);
@@ -18,7 +99,7 @@ const EventDisplay = ({ events, onSelectionChange, selectedEvents }) => {
     if (selectAll) {
       onSelectionChange([]);
     } else {
-      onSelectionChange([...events]);
+      onSelectionChange([...sortedEvents]);
     }
     setSelectAll(!selectAll);
   };
@@ -125,8 +206,99 @@ const EventDisplay = ({ events, onSelectionChange, selectedEvents }) => {
         )}
       </div>
 
+      {/* Sorting Controls */}
+      <div className="sorting-controls" style={{
+        display: 'flex',
+        gap: '1rem',
+        marginBottom: '1.5rem',
+        padding: '1rem',
+        background: '#16213e',
+        borderRadius: '0.5rem',
+        flexWrap: 'wrap'
+      }}>
+        <span style={{ color: '#ffffff', fontWeight: '600' }}>
+          <i className="fas fa-sort" style={{ marginRight: '0.5rem' }}></i>
+          Sort by:
+        </span>
+        
+        <button
+          className={`sort-btn ${sortConfig.key === 'name' ? 'active' : ''}`}
+          onClick={() => handleSort('name')}
+          style={{
+            background: sortConfig.key === 'name' ? '#6366f1' : '#374151',
+            color: '#ffffff',
+            border: 'none',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.25rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          Event Name
+          {getSortIcon('name')}
+        </button>
+        
+        <button
+          className={`sort-btn ${sortConfig.key === 'date' ? 'active' : ''}`}
+          onClick={() => handleSort('date')}
+          style={{
+            background: sortConfig.key === 'date' ? '#6366f1' : '#374151',
+            color: '#ffffff',
+            border: 'none',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.25rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          Date
+          {getSortIcon('date')}
+        </button>
+        
+        <button
+          className={`sort-btn ${sortConfig.key === 'confidence' ? 'active' : ''}`}
+          onClick={() => handleSort('confidence')}
+          style={{
+            background: sortConfig.key === 'confidence' ? '#6366f1' : '#374151',
+            color: '#ffffff',
+            border: 'none',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.25rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            transition: 'all 0.3s ease'
+          }}
+        >
+          Confidence
+          {getSortIcon('confidence')}
+        </button>
+
+        {sortConfig.key && (
+          <button
+            onClick={() => setSortConfig({ key: null, direction: 'asc' })}
+            style={{
+              background: '#ef4444',
+              color: '#ffffff',
+              border: 'none',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.25rem',
+              cursor: 'pointer',
+              fontSize: '0.875rem'
+            }}
+          >
+            <i className="fas fa-times" style={{ marginRight: '0.5rem' }}></i>
+            Clear Sort
+          </button>
+        )}
+      </div>
+
       <div className="events-grid">
-        {events.map((event, index) => {
+        {sortedEvents.map((event, index) => {
           const isSelected = selectedEvents.find(e => e.id === event.id);
           
           return (
@@ -250,6 +422,13 @@ const EventDisplay = ({ events, onSelectionChange, selectedEvents }) => {
             ) : null;
           })}
         </div>
+        
+        {sortConfig.key && (
+          <div style={{ marginTop: '1rem', color: '#a1a1aa', fontSize: '0.875rem' }}>
+            <i className="fas fa-info-circle" style={{ marginRight: '0.5rem' }}></i>
+            Sorted by {sortConfig.key} ({sortConfig.direction === 'asc' ? 'A-Z' : 'Z-A'})
+          </div>
+        )}
       </div>
     </motion.div>
   );

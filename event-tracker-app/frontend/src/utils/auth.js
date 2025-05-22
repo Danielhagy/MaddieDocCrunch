@@ -37,22 +37,70 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = (token) => {
-    localStorage.setItem('token', token);
-    api.setAuthToken(token);
-    fetchProfile();
+  const login = async (credentials) => {
+    try {
+      setLoading(true);
+      const response = await api.post('/auth/login', credentials);
+      const { token, user } = response.data;
+      
+      localStorage.setItem('token', token);
+      api.setAuthToken(token);
+      setUser(user);
+      
+      return { success: true, user };
+    } catch (error) {
+      console.error('Login failed:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.error || 'Login failed' 
+      };
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    api.setAuthToken(null);
-    setUser(null);
+  const register = async (userData) => {
+    try {
+      setLoading(true);
+      const response = await api.post('/auth/register', userData);
+      const { token, user } = response.data;
+      
+      localStorage.setItem('token', token);
+      api.setAuthToken(token);
+      setUser(user);
+      
+      return { success: true, user };
+    } catch (error) {
+      console.error('Registration failed:', error);
+      return { 
+        success: false, 
+        error: error.response?.data?.error || 'Registration failed' 
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      // Call logout endpoint if user is logged in
+      if (user) {
+        await api.post('/auth/logout');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      api.setAuthToken(null);
+      setUser(null);
+    }
   };
 
   const value = {
     user,
     loading,
     login,
+    register,
     logout,
     fetchProfile
   };

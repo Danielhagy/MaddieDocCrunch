@@ -6,6 +6,7 @@ import Header from './components/Common/Header';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import SimpleEventScraper from './pages/SimpleEventScraper';
+import TrackingDashboard from './pages/TrackingDashboard';
 import './styles/globals.css';
 import './styles/components.css';
 import './styles/simple-events.css';
@@ -14,9 +15,19 @@ import './App.css';
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   
-  if (loading) return <div className="loading-screen">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="spinner"></div>
+        <p>Loading...</p>
+      </div>
+    );
+  }
   
-  // Allow access without authentication for now (for testing)
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
   return children;
 };
 
@@ -43,6 +54,11 @@ function App() {
               <Route path="/scraping" element={
                 <ProtectedRoute>
                   <SimpleEventScraper />
+                </ProtectedRoute>
+              } />
+              <Route path="/tracking" element={
+                <ProtectedRoute>
+                  <TrackingDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/" element={<Navigate to="/dashboard" />} />
