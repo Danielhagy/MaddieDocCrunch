@@ -1,0 +1,32 @@
+{
+  "name": "documentcrunch-event-hub",
+  "version": "1.0.0",
+  "description": "DocumentCrunch Event Hub - Maddie's team event tracking platform",
+  "scripts": {
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm start",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/documentcrunch/event-hub.git"
+  },
+  "keywords": [
+    "documentcrunch",
+    "events",
+    "tracking",
+    "react",
+    "nodejs",
+    "maddie-team"
+  ],
+  "author": "DocumentCrunch - Maddie's Team",
+  "license": "MIT"
+}

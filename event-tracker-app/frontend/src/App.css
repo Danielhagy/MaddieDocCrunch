@@ -1,0 +1,86 @@
+@import './styles/globals.css';
+@import './styles/components.css';
+@import './styles/scraping.css';
+
+.App {
+  min-height: 100vh;
+  background: linear-gradient(135deg, var(--background) 0%, #1a1a2e 50%, #16213e 100%);
+}
+
+/* Auth Pages */
+.auth-page {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+/* Dashboard specific */
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.dashboard-grid .card {
+  background: rgba(26, 26, 46, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.dashboard-grid .card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+}
+
+/* Fun animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.card {
+  animation: float 6s ease-in-out infinite;
+}
+
+.card:nth-child(2) {
+  animation-delay: -2s;
+}
+
+.card:nth-child(3) {
+  animation-delay: -4s;
+}
+
+.card:nth-child(4) {
+  animation-delay: -6s;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2rem;
+  }
+  
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
