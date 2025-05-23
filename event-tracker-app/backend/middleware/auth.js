@@ -1,11 +1,10 @@
-const passport = require('passport');
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const authenticateJWT = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ error: 'No token provided' });
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ error: "No token provided" });
   }
 
   const token = authHeader.substring(7); // Remove 'Bearer ' prefix
@@ -15,8 +14,8 @@ const authenticateJWT = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.error('JWT verification failed:', error.message);
-    return res.status(401).json({ error: 'Invalid or expired token' });
+    console.error("JWT verification failed:", error.message);
+    return res.status(401).json({ error: "Invalid or expired token" });
   }
 };
 
