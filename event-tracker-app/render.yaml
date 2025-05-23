@@ -3,7 +3,7 @@ services:
     name: documentcrunch-event-hub
     runtime: node
     plan: starter
-    buildCommand: npm run build
+    # Let npm install handle everything
     startCommand: npm start
     envVars:
       - key: NODE_ENV

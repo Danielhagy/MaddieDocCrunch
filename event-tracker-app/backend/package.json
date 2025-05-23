@@ -18,7 +18,6 @@
     "express-rate-limit": "^6.10.0",
     "express-validator": "^7.2.1",
     "cheerio": "^1.0.0",
-    "puppeteer": "^21.11.0",
     "socket.io": "^4.7.5",
     "node-cron": "^3.0.3",
     "xlsx": "^0.18.5",

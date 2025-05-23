@@ -6,7 +6,7 @@
   "scripts": {
     "start": "cd backend && npm start",
     "build": "npm run install-deps && npm run build-frontend",
-    "install-deps": "cd backend && npm ci && cd ../frontend && npm ci",
+    "install-deps": "cd backend && npm install --production && cd ../frontend && npm install --production",
     "build-frontend": "cd frontend && npm run build && mkdir -p ../backend/public && cp -r build/* ../backend/public/"
   },
   "engines": {
