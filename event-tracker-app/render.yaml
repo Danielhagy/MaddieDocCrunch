@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: documentcrunch-event-hub
+    env: node
+    region: oregon
+    plan: starter
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        value: documentcrunch-production-jwt-secret-change-this-in-railway
+      - key: DATABASE_PATH
+        value: ./database/events.db
+    disk:
+      name: database
+      mountPath: /opt/render/project/src/backend/database
+      sizeGB: 1
