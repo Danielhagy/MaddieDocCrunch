@@ -29,10 +29,25 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdnjs.cloudflare.com",
+          "https://fonts.googleapis.com",
+        ],
+        fontSrc: [
+          "'self'",
+          "https://fonts.gstatic.com",
+          "https://cdnjs.cloudflare.com",
+        ],
         scriptSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'", "ws:", "wss:"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        connectSrc: ["'self'", "ws:", "wss:", "https:"],
+        mediaSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        childSrc: ["'self'"],
+        workerSrc: ["'self'", "blob:"],
+        frameSrc: ["'none'"],
       },
     },
   })
@@ -49,7 +64,10 @@ app.use("/api", limiter);
 const corsOptions = {
   origin:
     process.env.NODE_ENV === "production"
-      ? [process.env.FRONTEND_URL, "https://your-app-name.onrender.com"]
+      ? [
+          process.env.FRONTEND_URL ||
+            "https://documentcrunch-event-hub.onrender.com",
+        ]
       : ["http://localhost:3000", "http://localhost:3001"],
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -60,7 +78,7 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// API Routes
+// API Routes (must come BEFORE static file serving)
 app.use("/api/auth", authRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/users", userRoutes);
@@ -73,37 +91,45 @@ app.get("/api/health", (req, res) => {
     status: "OK",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
+    frontend: "included",
   });
 });
 
-// Serve static files from React app in production
-if (process.env.NODE_ENV === "production") {
-  const staticPath = path.join(__dirname, "public");
-  app.use(express.static(staticPath));
+// Serve static files from React app
+const staticPath = path.join(__dirname, "public");
+console.log("📂 Looking for static files in:", staticPath);
 
-  // Catch all handler: send back React's index.html file for any non-API routes
-  app.get("*", (req, res) => {
-    // Skip API routes
-    if (req.path.startsWith("/api")) {
-      return res.status(404).json({ error: "API endpoint not found" });
+app.use(
+  express.static(staticPath, {
+    maxAge: process.env.NODE_ENV === "production" ? "1d" : "0",
+  })
+);
+
+// API 404 handler (for /api/* routes only)
+app.use("/api/*", (req, res) => {
+  res.status(404).json({ error: "API endpoint not found" });
+});
+
+// React Router fallback - serve index.html for all non-API routes
+app.get("*", (req, res) => {
+  const indexPath = path.join(staticPath, "index.html");
+  console.log("🌐 Serving React app from:", indexPath);
+
+  res.sendFile(indexPath, (err) => {
+    if (err) {
+      console.error("❌ Error serving React app:", err);
+      res.status(500).json({
+        error: "Frontend not available",
+        message:
+          "React build files not found. Make sure the build completed successfully.",
+      });
     }
-
-    res.sendFile(path.join(staticPath, "index.html"));
   });
-} else {
-  // Development mode - just serve a simple message
-  app.get("/", (req, res) => {
-    res.json({
-      message: "DocumentCrunch Event Hub API is running",
-      api: "/api",
-      health: "/api/health",
-    });
-  });
-}
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error("Error:", err);
+  console.error("❌ Server Error:", err);
   res.status(500).json({
     error: "Internal server error",
     message:
@@ -111,11 +137,6 @@ app.use((err, req, res, next) => {
         ? err.message
         : "Something went wrong",
   });
-});
-
-// 404 handler for API routes
-app.use("/api/*", (req, res) => {
-  res.status(404).json({ error: "API endpoint not found" });
 });
 
 const PORT = process.env.PORT || 3001;
@@ -134,9 +155,8 @@ async function startServer() {
       console.log(`🚀 DocumentCrunch Event Hub running on port ${PORT}`);
       console.log(`📊 Environment: ${process.env.NODE_ENV || "development"}`);
       console.log(`🔗 API available at: http://localhost:${PORT}/api`);
-      if (process.env.NODE_ENV === "production") {
-        console.log(`🌐 Frontend served from: http://localhost:${PORT}`);
-      }
+      console.log(`🌐 Frontend available at: http://localhost:${PORT}`);
+      console.log(`📂 Static files served from: ${staticPath}`);
     });
   } catch (error) {
     console.error("❌ Failed to start server:", error);

@@ -2,11 +2,17 @@ services:
   - type: web
     name: documentcrunch-event-hub
     runtime: node
-    region: oregon
     plan: starter
-    rootDir: backend # This makes everything relative to backend/
-    buildCommand: npm install # Installs in backend/
-    startCommand: npm start # Runs from backend/
+    buildCommand: |
+      # Install backend dependencies
+      cd backend && npm install && cd ..
+      # Install frontend dependencies and build
+      cd frontend && npm install && npm run build
+      # Copy built frontend to backend public folder
+      mkdir -p ../backend/public
+      cp -r build/* ../backend/public/
+      cd ..
+    startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
         value: production
@@ -14,7 +20,3 @@ services:
         value: documentcrunch-production-jwt-secret-change-this-in-railway
       - key: DATABASE_PATH
         value: ./database/events.db
-    disk:
-      name: database
-      mountPath: /opt/render/project/src/database
-      sizeGB: 1
