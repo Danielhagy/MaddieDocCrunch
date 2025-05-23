@@ -11,4 +11,4 @@ services:
       - key: JWT_SECRET
         value: documentcrunch-production-jwt-secret-change-this-in-railway
       - key: DATABASE_PATH
-        value: ./database/events.db
+        value: /tmp/events.db
