@@ -7,12 +7,13 @@ class AuthController {
     try {
       const { username, email, password, displayName } = req.body;
 
-      // Check if user already exists
+      // Check if user exists
       db.get(
         "SELECT * FROM users WHERE username = ? OR email = ?",
         [username, email],
         async (err, existingUser) => {
           if (err) {
+            console.error("Database error:", err);
             return res.status(500).json({ error: "Database error" });
           }
 
@@ -33,7 +34,10 @@ class AuthController {
             stmt.run(
               [username, email, hashedPassword, displayName || username],
               function (err) {
+                stmt.finalize();
+
                 if (err) {
+                  console.error("Insert error:", err);
                   return res
                     .status(500)
                     .json({ error: "Failed to create user" });
@@ -57,8 +61,9 @@ class AuthController {
                 });
               }
             );
-          } catch (error) {
-            res.status(500).json({ error: "Failed to hash password" });
+          } catch (hashError) {
+            console.error("Hashing error:", hashError);
+            res.status(500).json({ error: "Failed to process password" });
           }
         }
       );
@@ -77,6 +82,7 @@ class AuthController {
         [username, username],
         async (err, user) => {
           if (err) {
+            console.error("Database error:", err);
             return res.status(500).json({ error: "Database error" });
           }
 
@@ -108,10 +114,12 @@ class AuthController {
                 username: user.username,
                 email: user.email,
                 displayName: user.display_name,
+                avatarUrl: user.avatar_url,
               },
             });
-          } catch (error) {
-            res.status(500).json({ error: "Login failed" });
+          } catch (compareError) {
+            console.error("Password comparison error:", compareError);
+            res.status(500).json({ error: "Authentication failed" });
           }
         }
       );
@@ -125,6 +133,7 @@ class AuthController {
     try {
       db.get("SELECT * FROM users WHERE id = ?", [req.user.id], (err, user) => {
         if (err) {
+          console.error("Database error:", err);
           return res.status(500).json({ error: "Database error" });
         }
 

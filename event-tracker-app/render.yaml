@@ -1,11 +1,12 @@
 services:
   - type: web
     name: documentcrunch-event-hub
-    env: node
+    runtime: node
     region: oregon
     plan: starter
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && npm start
+    rootDir: backend # This makes everything relative to backend/
+    buildCommand: npm install # Installs in backend/
+    startCommand: npm start # Runs from backend/
     envVars:
       - key: NODE_ENV
         value: production
@@ -15,5 +16,5 @@ services:
         value: ./database/events.db
     disk:
       name: database
-      mountPath: /opt/render/project/src/backend/database
+      mountPath: /opt/render/project/src/database
       sizeGB: 1
